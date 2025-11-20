@@ -20,8 +20,8 @@ public static class Extensions
             });
         });
 
-        // REVIEW: This is done for development ease but shouldn't be here in production
-        builder.Services.AddMigration<CatalogContext, CatalogContextSeed>();
+        // Seeding disabled - using data from neon.tech instead of mock data
+        builder.Services.AddMigration<CatalogContext>();
 
         // Add the integration services that consume the DbContext
         builder.Services.AddTransient<IIntegrationEventLogService, IntegrationEventLogService<CatalogContext>>();

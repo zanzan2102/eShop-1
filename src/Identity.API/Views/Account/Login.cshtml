@@ -37,6 +37,10 @@
                                 <p>The default users are alice/bob, password: Pass123$</p>
                             </div>
                             <button class="btn btn-primary" name="button" value="login">Login</button>
+                            <div class="form-group">
+                             <a asp-action="Register" asp-route-returnUrl="@Model.ReturnUrl">Don't have an account? Register here</a>
+                            </div>
+
                         </div>
                     </form>
                 </div>

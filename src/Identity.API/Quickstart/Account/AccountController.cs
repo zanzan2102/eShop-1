@@ -198,6 +198,102 @@ namespace IdentityServerHost.Quickstart.UI
         {
             return View();
         }
+        /// <summary>
+/// Show registration page
+/// </summary>
+[HttpGet]
+public IActionResult Register(string returnUrl)
+{
+    var vm = new RegisterViewModel
+    {
+        ReturnUrl = returnUrl
+    };
+
+    ViewData["ReturnUrl"] = returnUrl;
+    return View(vm);
+}
+
+/// <summary>
+/// Handle postback from registration
+/// </summary>
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Register(RegisterInputModel model, string button)
+{
+    // the user clicked the "cancel" button
+    if (button != "register")
+    {
+        return RedirectToAction("Login", new { returnUrl = model.ReturnUrl });
+    }
+
+    if (ModelState.IsValid)
+    {
+        var user = new ApplicationUser
+        {
+            UserName = model.Email,
+            Email = model.Email,
+            EmailConfirmed = true,
+            Name = model.Name,
+            LastName = model.LastName,
+            Street = model.Street,
+            City = model.City,
+            State = model.State,
+            Country = model.Country,
+            ZipCode = model.ZipCode,
+            CardHolderName = model.CardHolderName,
+            CardNumber = model.CardNumber,
+            SecurityNumber = model.SecurityNumber,
+            Expiration = model.Expiration,
+            CardType = model.CardType
+        };
+
+        var result = await _userManager.CreateAsync(user, model.Password);
+        
+        if (result.Succeeded)
+        {
+            await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName, clientId: null));
+            
+            // Automatically sign in the user after registration
+            await _signInManager.SignInAsync(user, isPersistent: false);
+            
+            if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
+            {
+                return Redirect(model.ReturnUrl);
+            }
+            
+            return RedirectToAction("Login", new { returnUrl = model.ReturnUrl });
+        }
+
+        foreach (var error in result.Errors)
+        {
+            ModelState.AddModelError(string.Empty, error.Description);
+        }
+    }
+
+    // something went wrong, show form with error
+    var vm = new RegisterViewModel
+    {
+        Email = model.Email,
+        Name = model.Name,
+        LastName = model.LastName,
+        Street = model.Street,
+        City = model.City,
+        State = model.State,
+        Country = model.Country,
+        ZipCode = model.ZipCode,
+        CardHolderName = model.CardHolderName,
+        CardNumber = model.CardNumber,
+        SecurityNumber = model.SecurityNumber,
+        Expiration = model.Expiration,
+        CardType = model.CardType,
+        ReturnUrl = model.ReturnUrl
+    };
+
+    ViewData["ReturnUrl"] = model.ReturnUrl;
+    return View(vm);
+}
+
+
 
 
         /*****************************************/
